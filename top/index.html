@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Caverna</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body>
+
+    <header> 
+        <img src="THECAVE.jpg" alt="logo do site"class="logo">
+        <h1>A Caverna</h1>
+        <h2 class="subtitulo">Igreja que Edifica Igreja</h2> <!-- ✅ Subtítulo adicionado -->
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showSection('devocionais')">Devocionais</a></li>
+            <li><a href="#" onclick="showSection('informes')">Informes de Grupo</a></li>
+            <li><a href="#" onclick="showSection('biblia')">Bíblia</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="devocionais" class="section-box">
+            <h2>Devocionais</h2>
+            <div class="post-box">
+                <textarea id="devocionalText" placeholder="Digite o devocional..."></textarea>
+                <button id="postDevocionalBtn">Postar</button>
+            </div>
+            <div id="devocionalList"></div>
+        </section>
+
+        <section id="informes" class="section-box hidden">
+            <h2>Informes de Grupo</h2>
+            <div class="post-box">
+                <textarea id="informeText" placeholder="Digite o informe..."></textarea>
+                <button id="postInformeBtn">Postar</button>
+            </div>
+            <div id="informeList"></div>
+        </section>
+
+        <section id="biblia" class="section-box hidden">
+            <h2>Bíblia</h2>
+            <p>Acesse a Bíblia online para ler e meditar.</p>
+            <a href="https://www.bibliaonline.com.br/" target="_blank" class="bible-button">📖 Acessar Bíblia</a>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Igreja. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        function showSection(sectionId) {
+            // Oculta todas as seções
+            document.querySelectorAll('.section-box').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Mostra apenas a seção clicada
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        // Exibe apenas os devocionais ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('devocionais');
+        });
+    </script>
+
+</body>
+</html>
