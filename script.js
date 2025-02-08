@@ -1,78 +1,104 @@
-// Importação do Firebase e Firestore
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js";
+// Importa o Firebase
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
 
-// Configuração do Firebase (usando variáveis de ambiente no Netlify)
+// Configuração do Firebase (SEUS DADOS)
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY, // 🔒 Chave segura
-    authDomain: "a-caverna-e7efa.firebaseapp.com",
-    projectId: "a-caverna-e7efa",
-    storageBucket: "a-caverna-e7efa.firebasestorage.app",
-    messagingSenderId: "104720467285",
-    appId: "1:104720467285:web:7ebdfc27fa7cb923f8dbdc",
-    measurementId: "G-6XPWT60J3T"
+  apiKey: "AIzaSyB4J0x0RevW0XyDEmLb_b9RV_JJh5UCKPE",
+  authDomain: "a-caverna-e7efa.firebaseapp.com",
+  projectId: "a-caverna-e7efa",
+  storageBucket: "a-caverna-e7efa.firebasestorage.app",
+  messagingSenderId: "104720467285",
+  appId: "1:104720467285:web:7ebdfc27fa7cb923f8dbdc",
+  measurementId: "G-6XPWT60J3T"
 };
 
-// Inicializa Firebase
+// Inicializa Firebase e Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Referências às coleções do Firestore
-const devocionaisRef = collection(db, "devocionais");
-const informesRef = collection(db, "informes");
+// Verifica se Firebase foi inicializado
+console.log("Firebase inicializado com sucesso!");
 
-// Seleção de elementos no HTML
-const devocionalList = document.getElementById('devocionalList');
-const informeList = document.getElementById('informeList');
-const postDevocionalBtn = document.getElementById('postDevocionalBtn');
-const postInformeBtn = document.getElementById('postInformeBtn');
-const devocionalText = document.getElementById('devocionalText');
-const informeText = document.getElementById('informeText');
-
-// 🔹 Função para adicionar um novo devocional ao Firestore
-async function addDevocional() {
-    const text = devocionalText.value.trim();
-    if (text) {
-        await addDoc(devocionaisRef, { text, timestamp: new Date() });
-        devocionalText.value = ""; // Limpa o campo de texto
+// Função para postar devocional no Firestore
+async function postDevocional() {
+    const text = document.getElementById('devocionalText').value;
+    if (text.trim() !== "") {
+        try {
+            await addDoc(collection(db, "devocionais"), { texto: text, timestamp: serverTimestamp() });
+            document.getElementById('devocionalText').value = ""; // Limpa o campo
+            console.log("✅ Devocional postado!");
+            loadDevocionais(); // Atualiza a lista
+        } catch (error) {
+            console.error("❌ Erro ao postar devocional:", error);
+        }
     } else {
-        alert('Digite um devocional antes de postar!');
+        alert("O devocional não pode estar vazio!");
     }
 }
 
-// 🔹 Função para adicionar um novo informe ao Firestore
-async function addInforme() {
-    const text = informeText.value.trim();
-    if (text) {
-        await addDoc(informesRef, { text, timestamp: new Date() });
-        informeText.value = ""; // Limpa o campo de texto
-    } else {
-        alert('Digite um informe antes de postar!');
+// Função para carregar devocionais do Firestore
+async function loadDevocionais() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "devocionais"));
+        const devocionalList = document.getElementById('devocionalList');
+        devocionalList.innerHTML = ""; // Limpa a lista antes de carregar
+
+        querySnapshot.forEach((doc) => {
+            const item = document.createElement('div');
+            item.classList.add('devocionalItem');
+            item.textContent = doc.data().texto;
+            devocionalList.appendChild(item);
+        });
+
+        console.log("📜 Devocionais carregados com sucesso!");
+    } catch (error) {
+        console.error("❌ Erro ao carregar devocionais:", error);
     }
 }
 
-// 🔥 Atualiza a lista de devocionais em tempo real
-onSnapshot(query(devocionaisRef, orderBy("timestamp", "desc")), (snapshot) => {
-    devocionalList.innerHTML = ""; // Limpa a lista antes de atualizar
-    snapshot.forEach((doc) => {
-        const postItem = document.createElement('div');
-        postItem.classList.add('post-item');
-        postItem.textContent = doc.data().text;
-        devocionalList.appendChild(postItem);
-    });
-});
+// Função para postar um informe no Firestore
+async function postInforme() {
+    const text = document.getElementById('informeText').value;
+    if (text.trim() !== "") {
+        try {
+            await addDoc(collection(db, "informes"), { texto: text, timestamp: serverTimestamp() });
+            document.getElementById('informeText').value = ""; // Limpa o campo
+            console.log("✅ Informe postado!");
+            loadInformes(); // Atualiza a lista
+        } catch (error) {
+            console.error("❌ Erro ao postar informe:", error);
+        }
+    } else {
+        alert("O informe não pode estar vazio!");
+    }
+}
 
-// 🔥 Atualiza a lista de informes em tempo real
-onSnapshot(query(informesRef, orderBy("timestamp", "desc")), (snapshot) => {
-    informeList.innerHTML = ""; // Limpa a lista antes de atualizar
-    snapshot.forEach((doc) => {
-        const postItem = document.createElement('div');
-        postItem.classList.add('post-item');
-        postItem.textContent = doc.data().text;
-        informeList.appendChild(postItem);
-    });
-});
+// Função para carregar informes do Firestore
+async function loadInformes() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "informes"));
+        const informeList = document.getElementById('informeList');
+        informeList.innerHTML = ""; // Limpa a lista antes de carregar
 
-// Eventos dos botões para postar devocional e informe
-postDevocionalBtn.addEventListener('click', addDevocional);
-postInformeBtn.addEventListener('click', addInforme);
+        querySnapshot.forEach((doc) => {
+            const item = document.createElement('div');
+            item.classList.add('informeItem');
+            item.textContent = doc.data().texto;
+            informeList.appendChild(item);
+        });
+
+        console.log("📜 Informes carregados com sucesso!");
+    } catch (error) {
+        console.error("❌ Erro ao carregar informes:", error);
+    }
+}
+
+// Adiciona eventos aos botões de postagem
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('postDevocionalBtn').addEventListener('click', postDevocional);
+    document.getElementById('postInformeBtn').addEventListener('click', postInforme);
+
+    loadDevocionais();
+    loadInformes();
+});
